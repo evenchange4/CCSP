@@ -1,19 +1,18 @@
-#加载rmr2包
+# include rmr2
 library(rmr2)
 
-#输入数据文件
+# input csv file
 train<-read.csv(file="small.csv",header=FALSE)
 names(train)<-c("user","item","pref")
 
-#使用rmr的hadoop格式，hadoop是默认设置。
+# 使用 rmr 的 hadoop 格式(default)。
 rmr.options(backend = 'hadoop')
 
-#把数据集存入HDFS
+#put data to HDFS
 train.hdfs = to.dfs(keyval(train$user,train))
 # from.dfs(train.hdfs)
 
-#STEP 1, 建立物品的同现矩阵
-# 1) 按用户分组，得到所有物品出现的组合列表。
+# STEP 1.1 建立 item's co-occurrence matrix
 train.mr<-mapreduce(
   train.hdfs, 
   map = function(k, v) {
@@ -25,7 +24,7 @@ train.mr<-mapreduce(
   }
 )
 
-# 2) 对物品组合列表进行计数，建立物品的同现矩阵
+# STEP 1.2 算出 item's co-occurrence matrix frequence
 step2.mr<-mapreduce(
   train.mr,
   map = function(k, v) {
@@ -38,8 +37,7 @@ step2.mr<-mapreduce(
   }
 )
 
-# 2. 建立用户对物品的评分矩阵
-
+# STEP 2 建立 user's 評分矩陣
 train2.mr<-mapreduce(
   train.hdfs, 
   map = function(k, v) {
@@ -51,7 +49,7 @@ train2.mr<-mapreduce(
   }
 )
 
-#3. 合并同现矩阵 和 评分矩阵
+# STEP 3 equijoin co-occurrence matrix and score matrix
 eq.hdfs<-equijoin(
   left.input=step2.mr, 
   right.input=train2.mr,
@@ -64,7 +62,7 @@ eq.hdfs<-equijoin(
   outer = c("left")
 )
 
-#4. 计算推荐结果列表
+# STEP 4 計算推薦的結果
 cal.mr<-mapreduce(
   input=eq.hdfs,
   map=function(k,v){
@@ -79,7 +77,7 @@ cal.mr<-mapreduce(
   }
 )
 
-#5. 按输入格式得到推荐评分列表
+# STEP 5 output list and score
 result.mr<-mapreduce(
   input=cal.mr,
   map=function(k,v){
