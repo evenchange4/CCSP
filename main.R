@@ -92,3 +92,5 @@ result.mr<-mapreduce(
     keyval(val2$user,val2)
   }
 )
+
+from.dfs(result.mr)
