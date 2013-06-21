@@ -1,4 +1,4 @@
-CCSP (cloud computing special project)
+Cloud Computing Special Project
 ====
 ## 簡介
 - 課程： [101-2 NTU cloud computing special project](https://sites.google.com/site/cloudcomputingspecialproject/101-2-progress-report)
