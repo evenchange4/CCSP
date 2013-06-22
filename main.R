@@ -2,7 +2,7 @@
 library(rmr2)
 
 # input csv file
-train<-read.csv(file="movielen_dataset.csv",header=FALSE)
+train<-read.csv(file="movielen_dataset_100k.csv",header=FALSE)
 names(train)<-c("user","item","pref")
 
 # 使用 rmr 的 hadoop 格式(default)。
